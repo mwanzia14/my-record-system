@@ -4,7 +4,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth, db } from './firebase';
 import { collection, onSnapshot, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaTachometerAlt, FaFolder, FaBell, FaMoon, FaSun, FaSignOutAlt, FaTrash, FaPalette, FaBars, FaTimes } from 'react-icons/fa';
+import { FaTachometerAlt, FaFolder, FaBell, FaMoon, FaSun, FaSignOutAlt, FaTrash, FaPalette, FaBars, FaTimes, FaMoneyBillWave } from 'react-icons/fa';
 import { TypeAnimation } from 'react-type-animation';
 import styled, { ThemeProvider, css } from 'styled-components';
 import Login from './Login';
@@ -13,6 +13,7 @@ import Dashboard from './Dashboard';
 import ProjectList from './ProjectList';
 import ProjectForm from './ProjectForm';
 import NotificationPage from './NotificationPage';
+import PaymentTracker from './PaymentTracker';
 import logo from './logo/logo.png';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
@@ -402,13 +403,11 @@ const Sidebar = ({ user, theme, toggleTheme, isMobileMenuOpen, setIsMobileMenuOp
   };
 
   const handleNavClick = () => {
-    // Close mobile menu when navigation item is clicked
     if (window.innerWidth < 768) {
       setIsMobileMenuOpen(false);
     }
   };
 
-  // Fetch new and unread notifications count and preview
   const fetchNotificationsData = () => {
     try {
       const unsubscribe = onSnapshot(collection(db, 'notifications'), async (snapshot) => {
@@ -766,6 +765,32 @@ const Sidebar = ({ user, theme, toggleTheme, isMobileMenuOpen, setIsMobileMenuOp
               </>
             )}
           </NavLinkStyled>
+
+          <NavLinkStyled
+            to="/payments"
+            isCollapsed={isCollapsed}
+            onClick={handleNavClick}
+          >
+            {({ isActive }) => (
+              <>
+                <motion.div whileHover="hover" variants={iconVariants}>
+                  <FaMoneyBillWave className="me-2" />
+                </motion.div>
+                {!isCollapsed && 'Payments'}
+                {isCollapsed && window.innerWidth >= 768 && (
+                  <motion.div
+                    className="position-absolute p-2 rounded shadow-lg"
+                    style={{ left: '100%', top: '50%', transform: 'translateY(-50%)', zIndex: 1000, background: theme.cardBackground, color: theme.text }}
+                    variants={tooltipVariants}
+                    initial="hidden"
+                    whileHover="visible"
+                  >
+                    Payments
+                  </motion.div>
+                )}
+              </>
+            )}
+          </NavLinkStyled>
         </nav>
 
         <div className="mt-auto">
@@ -808,7 +833,6 @@ const PrivateLayout = ({ children, theme, toggleTheme }) => {
   }, []);
 
   useEffect(() => {
-    // Close mobile menu when screen size changes to desktop
     const handleResize = () => {
       if (window.innerWidth >= 768) {
         setIsMobileMenuOpen(false);
@@ -892,27 +916,13 @@ const PrivateLayout = ({ children, theme, toggleTheme }) => {
               animation: float ${Math.random() * 10 + 5}s infinite;
             }
             
-            /* Custom scrollbar styles */
-            ::-webkit-scrollbar {
-              width: 8px;
-              height: 8px;
-            }
-            ::-webkit-scrollbar-track {
-              background: ${theme.background};
-            }
-            ::-webkit-scrollbar-thumb {
-              background: ${theme.primary};
-              border-radius: 10px;
-            }
-            ::-webkit-scrollbar-thumb:hover {
-              background: ${theme.secondary};
-            }
+            ::-webkit-scrollbar { width: 8px; height: 8px; }
+            ::-webkit-scrollbar-track { background: ${theme.background}; }
+            ::-webkit-scrollbar-thumb { background: ${theme.primary}; border-radius: 10px; }
+            ::-webkit-scrollbar-thumb:hover { background: ${theme.secondary}; }
             
-            /* Responsive text sizes */
             @media (max-width: 576px) {
-              body {
-                font-size: 14px;
-              }
+              body { font-size: 14px; }
               h1 { font-size: 1.8rem; }
               h2 { font-size: 1.6rem; }
               h3 { font-size: 1.4rem; }
@@ -921,17 +931,12 @@ const PrivateLayout = ({ children, theme, toggleTheme }) => {
               h6 { font-size: 1rem; }
             }
             
-            /* Touch-friendly interactive elements */
             @media (max-width: 768px) {
-              button, .btn, a {
-                min-height: 44px;
-                min-width: 44px;
-              }
+              button, .btn, a { min-height: 44px; min-width: 44px; }
             }
           `}
         </style>
         
-        {/* Background particles - fewer on mobile for performance */}
         {Array.from({ length: window.innerWidth < 768 ? 10 : 20 }).map((_, i) => (
           <div
             key={i}
@@ -988,82 +993,32 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  // Add global styles for responsive design
   useEffect(() => {
     const style = document.createElement('style');
     style.textContent = `
-      * {
-        box-sizing: border-box;
-      }
-      
-      body {
-        margin: 0;
-        padding: 0;
-        overflow-x: hidden;
-      }
-      
-      /* Ensure images are responsive */
-      img {
-        max-width: 100%;
-        height: auto;
-      }
-      
-      /* Responsive tables */
-      .table-responsive {
-        overflow-x: auto;
-      }
-      
-      /* Better button spacing on mobile */
+      * { box-sizing: border-box; }
+      body { margin: 0; padding: 0; overflow-x: hidden; }
+      img { max-width: 100%; height: auto; }
+      .table-responsive { overflow-x: auto; }
       @media (max-width: 576px) {
-        .btn {
-          margin-bottom: 0.5rem;
-        }
-        
-        .btn-group .btn {
-          margin-bottom: 0;
-        }
+        .btn { margin-bottom: 0.5rem; }
+        .btn-group .btn { margin-bottom: 0; }
       }
-      
-      /* Responsive form controls */
       @media (max-width: 576px) {
-        .form-control, .form-select {
-          font-size: 16px; /* Prevents zoom on iOS */
-        }
+        .form-control, .form-select { font-size: 16px; }
       }
-      
-      /* Improve touch targets */
       @media (max-width: 768px) {
-        .nav-link {
-          padding: 0.75rem 1rem;
-        }
-        
-        .list-group-item {
-          padding: 1rem;
-        }
+        .nav-link { padding: 0.75rem 1rem; }
+        .list-group-item { padding: 1rem; }
       }
-      
-      /* Responsive modals */
       @media (max-width: 576px) {
-        .modal-dialog {
-          margin: 0.5rem;
-          max-width: calc(100% - 1rem);
-        }
+        .modal-dialog { margin: 0.5rem; max-width: calc(100% - 1rem); }
       }
-      
-      /* Hide scrollbar but keep functionality */
-      .hide-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
-      .hide-scrollbar::-webkit-scrollbar {
-        display: none;
-      }
+      .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      .hide-scrollbar::-webkit-scrollbar { display: none; }
     `;
     document.head.appendChild(style);
-    
-    return () => {
-      document.head.removeChild(style);
-    };
+    return () => { document.head.removeChild(style); };
   }, []);
 
   if (!authChecked) {
@@ -1083,68 +1038,50 @@ function App() {
     <ThemeProvider theme={theme}>
       <Router>
         <Routes>
-          <Route 
-            path="/login" 
-            element={user ? <Navigate to="/dashboard" /> : <Login />} 
-          />
-          <Route 
-            path="/register" 
-            element={user ? <Navigate to="/login" /> : <Register />} 
-          />
+          <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
+          <Route path="/register" element={user ? <Navigate to="/login" /> : <Register />} />
 
-          <Route
-            path="/"
-            element={
-              <PrivateLayout theme={theme} toggleTheme={toggleTheme}>
-                <Navigate to="/dashboard" replace />
-              </PrivateLayout>
-            }
-          />
-          
-          <Route
-            path="/dashboard"
-            element={
-              <PrivateLayout theme={theme} toggleTheme={toggleTheme}>
-                <Dashboard />
-              </PrivateLayout>
-            }
-          />
-          
-          <Route
-            path="/projects"
-            element={
-              <PrivateLayout theme={theme} toggleTheme={toggleTheme}>
-                <ProjectList />
-              </PrivateLayout>
-            }
-          />
-          
-          <Route
-            path="/projects/new"
-            element={
-              <PrivateLayout theme={theme} toggleTheme={toggleTheme}>
-                <ProjectForm />
-              </PrivateLayout>
-            }
-          />
-          
-          <Route
-            path="/projects/edit/:id"
-            element={
-              <PrivateLayout theme={theme} toggleTheme={toggleTheme}>
-                <ProjectForm />
-              </PrivateLayout>
-            }
-          />
-          
-          <Route
-            path="/notifications"
-            element={
-              <PrivateLayout theme={theme} toggleTheme={toggleTheme}>
-                <NotificationPage />
-              </PrivateLayout>
-            }
-          />
+          <Route path="/" element={
+            <PrivateLayout theme={theme} toggleTheme={toggleTheme}>
+              <Navigate to="/dashboard" replace />
+            </PrivateLayout>
+          } />
+
+          <Route path="/dashboard" element={
+            <PrivateLayout theme={theme} toggleTheme={toggleTheme}>
+              <Dashboard />
+            </PrivateLayout>
+          } />
+
+          <Route path="/projects" element={
+            <PrivateLayout theme={theme} toggleTheme={toggleTheme}>
+              <ProjectList />
+            </PrivateLayout>
+          } />
+
+          <Route path="/projects/new" element={
+            <PrivateLayout theme={theme} toggleTheme={toggleTheme}>
+              <ProjectForm />
+            </PrivateLayout>
+          } />
+
+          <Route path="/projects/edit/:id" element={
+            <PrivateLayout theme={theme} toggleTheme={toggleTheme}>
+              <ProjectForm />
+            </PrivateLayout>
+          } />
+
+          <Route path="/notifications" element={
+            <PrivateLayout theme={theme} toggleTheme={toggleTheme}>
+              <NotificationPage />
+            </PrivateLayout>
+          } />
+
+          <Route path="/payments" element={
+            <PrivateLayout theme={theme} toggleTheme={toggleTheme}>
+              <PaymentTracker />
+            </PrivateLayout>
+          } />
         </Routes>
       </Router>
     </ThemeProvider>
